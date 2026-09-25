@@ -156,4 +156,33 @@ class DashboardBackendWorkflowTest extends TestCase
             'complaint_id' => $complaint->id,
         ]);
     }
+
+    public function test_filament_database_notifications_jsonb_query(): void
+    {
+        $user = User::first();
+
+        // Test the exact query Filament runs on topbar notifications badge
+        $unreadCount = $user->unreadNotifications()
+            ->where('data->format', 'filament')
+            ->count();
+
+        $this->assertEquals(0, $unreadCount);
+    }
+
+    public function test_admin_complaints_page_renders_successfully(): void
+    {
+        $admin = User::where('email', 'admin@blitarkab.go.id')->first() ?? User::first();
+
+        $response = $this->actingAs($admin)->get('/admin/complaints');
+
+        $response->assertSuccessful();
+    }
+
+    public function test_admin_service_requests_and_rehab_pages_render_successfully(): void
+    {
+        $admin = User::where('email', 'admin@blitarkab.go.id')->first() ?? User::first();
+
+        $this->actingAs($admin)->get('/admin/service-requests')->assertSuccessful();
+        $this->actingAs($admin)->get('/admin/rehabilitation-cases')->assertSuccessful();
+    }
 }

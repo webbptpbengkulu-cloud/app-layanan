@@ -247,7 +247,10 @@ class ComplaintsTable
                         ->form([
                             Select::make('duplicate_of_id')
                                 ->label('Laporan Induk')
-                                ->options(Complaint::where('id', '!=', fn (Complaint $record): int => $record->id)->pluck('complaint_number', 'id'))
+                                ->options(fn (?Complaint $record) => Complaint::query()
+                                    ->when($record, fn ($query) => $query->where('id', '!=', $record->id))
+                                    ->pluck('complaint_number', 'id')
+                                )
                                 ->searchable()
                                 ->required(),
                             Textarea::make('notes')->label('Catatan Kesamaan Laporan')->required(),
